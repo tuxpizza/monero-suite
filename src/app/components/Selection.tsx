@@ -17,6 +17,8 @@ interface SelectionProps {
 
 const Selection = ({ services, stateFunctions }: SelectionProps) => {
   const {
+    linuxType,
+    setLinuxType,
     isMoneroPublicNode,
     setIsMoneroPublicNode,
     isPrunedNode,
@@ -169,6 +171,35 @@ const Selection = ({ services, stateFunctions }: SelectionProps) => {
           </Text>
         </>
       )}
+      {/* change Linux type */}
+      <SegmentedControl
+        value={linuxType}
+        onChange={setLinuxType}
+        data={[
+          {
+            label: (
+              <ExplainingLabel
+                label="Ubuntu"
+                explanation={services["linux"].description.concat(
+                  " Ubuntu based systems."
+                )}
+              />
+            ),
+            value: "ubuntu",
+          },
+          {
+            label: (
+              <ExplainingLabel
+                label="Fedora"
+                explanation={services["linux"].description.concat(
+                  " Fedora based systems."
+                )}
+              />
+            ),
+            value: "fedora",
+          },
+        ]}
+      />
       {/* <Checkbox
         checked={isXmrig}
         label="XMRig"

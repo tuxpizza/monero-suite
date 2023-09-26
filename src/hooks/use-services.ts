@@ -9,7 +9,9 @@ export interface Service {
   description: string;
   checked: boolean | string;
   required: boolean;
+  bashBase?: string;
   bash?: string;
+  bashFinale?: string;
   code: PropertiesServices;
   volumes?: PropertiesVolumes;
 }
@@ -26,6 +28,7 @@ export const useServices = () => {
     "48oc8c65B9JPv6FBZBg7UN9xUYmxux6WfEh61WBoKca7Amh7r7bnCZ7JJicLw7UN3DEgEADwqrhwxGBJazPZ14PJGbmMyXX"
   );
   const [p2PoolMiningThreads, setP2PoolMiningThreads] = useState(0);
+  const [linuxType, setLinuxType] = useState("ubuntu");
   const [isTor, setIsTor] = useState(false);
   const [isWatchtower, setIsWatchtower] = useState(false);
   const [isMoneroblock, setIsMoneroblock] = useState(false);
@@ -134,6 +137,67 @@ sudo ufw allow 3333/tcp`
                   : []),
               ].join(" "),
             },
+          },
+        },
+        linux: {
+          name: "Linux",
+          description:
+            "Commands for",
+          checked: linuxType,
+          required: false,
+          bashBase:
+            linuxType === "ubuntu"
+              ? `
+# Install ufw firewall and curl
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get install -y ufw curl
+              
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+su - $USER
+              
+# Deny all non-explicitly allowed ports
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+              
+# Allow SSH access
+sudo ufw allow ssh`
+              : linuxType === "fedora"
+              ? `
+# Install firewalld and curl
+sudo dnf update -y
+sudo dnf install firewalld curl -y
+                            
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+su - $USER
+                            
+# Deny all non-explicitly allowed ports
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+                            
+# Allow SSH access
+sudo ufw allow ssh`
+              : undefined,
+          bashFinale:
+              linuxType === "ubuntu"
+              ? `
+# Enable UFW
+sudo ufw enable
+                
+# change directory to where the docker-compose.yml file is located
+cd ~/monero-suite
+# finally, start the containers with:
+docker-compose up -d`
+              : linuxType === "fedora"
+                ? `
+# FedoraFinale`
+                : undefined,
+          code: {
           },
         },
         moneroblock: {
@@ -269,8 +333,10 @@ sudo ufw allow 3333/tcp`
             },
           },
         },
+        
       } as ServiceMap),
     [
+      linuxType,
       isMoneroPublicNode,
       isPrunedNode,
       p2PoolMode,
@@ -288,6 +354,8 @@ sudo ufw allow 3333/tcp`
   return {
     services,
     stateFunctions: {
+      linuxType,
+      setLinuxType,
       isMoneroPublicNode,
       setIsMoneroPublicNode,
       isPrunedNode,

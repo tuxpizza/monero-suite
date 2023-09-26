@@ -1,8 +1,9 @@
-import type { Service } from "@/hooks/use-services";
+import { Service } from "@/hooks/use-services";
 import { CodeHighlightTabs } from "@mantine/code-highlight";
 import { SiGnubash } from "react-icons/si";
 
-const baseBashCommands = [
+const baseUbuntuCommands = [
+  "#Install curl and ufw firewall",
   "sudo apt-get update && sudo apt-get upgrade -y",
   "sudo apt-get install -y ufw curl",
   "",
@@ -20,7 +21,7 @@ const baseBashCommands = [
   "sudo ufw allow ssh",
 ];
 
-const finalBashCommands = [
+const finalUbuntuCommands = [
   "# Enable UFW",
   "sudo ufw enable",
   "",
@@ -30,22 +31,38 @@ const finalBashCommands = [
   "docker-compose up -d",
 ];
 
+const baseFedoraCommands = [
+  "#FedoraBase"
+];
+
+const finalFedoraCommands = [
+  "#FedoraFinal"
+];
+
 interface BashPreviewProps {
   services: Service[];
 }
 
 const BashPreview = ({ services }: BashPreviewProps) => {
   // replace two or more newlines with one newline
+
   const serviceBashCommands = services
-    .filter((service) => service.bash)
-    .map((service) => service.bash)
-    .join("\n")
-    .replace(/\n{2,}/g, "\n\n");
+  .filter((service) => service.bash)
+  .map((service) => service.bash)
+  .join("\n").replace(/\n{2,}/g, "\n\n");
+
+  const baseCommands = services
+  .filter((service) => service.bashBase)
+  .map((service) => service.bashBase)
+
+  const finalCommands = services
+  .filter((service) => service.bashFinale)
+  .map((service) => service.bashFinale)
 
   const bashCommands = [
-    ...baseBashCommands,
-    serviceBashCommands,
-    ...finalBashCommands,
+    ...baseCommands!,
+    serviceBashCommands!,
+    ...finalCommands!,
   ].join("\n");
 
   return (
